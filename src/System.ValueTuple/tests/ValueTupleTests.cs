@@ -226,17 +226,47 @@ namespace System.Tests
             public void IStructuralEquatable_Equals_NullComparer_UsesDefaultComparer()
             {
                 IStructuralEquatable equatable = (IStructuralEquatable)valueTuple;
-                Assert.Equal(
-                    equatable.Equals(valueTuple, EqualityComparer<object>.Default),
-                    equatable.Equals(valueTuple, null));
+                if (!PlatformDetection.IsNetfx470OrNewer())
+                {
+                    Assert.Equal(
+                        equatable.Equals(valueTuple, EqualityComparer<object>.Default),
+                        equatable.Equals(valueTuple, null));
+                }
+                else
+                {
+                    // .NET Framework hasn't received the fix for https://github.com/dotnet/corefx/issues/18528 yet.
+                    if (valueTuple is ValueTuple)
+                    {
+                        Assert.True(equatable.Equals(valueTuple, null));
+                    }
+                    else
+                    {
+                        Assert.Throws<NullReferenceException>(() => equatable.Equals(valueTuple, null));
+                    }
+                }
             }
 
             public void IStructuralEquatable_GetHashCode_NullComparer_UsesDefaultComparer()
             {
                 IStructuralEquatable equatable = (IStructuralEquatable)valueTuple;
-                Assert.Equal(
-                    equatable.GetHashCode(EqualityComparer<object>.Default),
-                    equatable.GetHashCode(null));
+                if (!PlatformDetection.IsNetfx470OrNewer())
+                {
+                    Assert.Equal(
+                        equatable.GetHashCode(EqualityComparer<object>.Default),
+                        equatable.GetHashCode(null));
+                }
+                else
+                {
+                    // .NET Framework hasn't received the fix for https://github.com/dotnet/corefx/issues/18528 yet.
+                    if (valueTuple is ValueTuple)
+                    {
+                        Assert.Equal(0, valueTuple.GetHashCode());
+                    }
+                    else
+                    {
+                        Assert.Throws<NullReferenceException>(() => equatable.GetHashCode(null));
+                    }
+                }
             }
 
             public void TestCompareTo(ValueTupleTestDriver<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> other, int expectedResult, int expectedStructuralResult)
@@ -251,9 +281,24 @@ namespace System.Tests
             public void IStructuralComparable_NullComparer_UsesDefaultComparer()
             {
                 IStructuralComparable comparable = (IStructuralComparable)valueTuple;
-                Assert.Equal(
-                    comparable.CompareTo(valueTuple, Comparer<object>.Default),
-                    comparable.CompareTo(valueTuple, null));
+                if (!PlatformDetection.IsNetfx470OrNewer())
+                {
+                    Assert.Equal(
+                        comparable.CompareTo(valueTuple, Comparer<object>.Default),
+                        comparable.CompareTo(valueTuple, null));
+                }
+                else
+                {
+                    // .NET Framework hasn't received the fix for https://github.com/dotnet/corefx/issues/18528 yet.
+                    if (valueTuple is ValueTuple)
+                    {
+                        Assert.Equal(0, comparable.CompareTo(valueTuple, null));
+                    }
+                    else
+                    {
+                        Assert.Throws<NullReferenceException>(() => comparable.CompareTo(valueTuple, null));
+                    }
+                }
             }
 
             public void TestNotEqual()
